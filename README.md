@@ -14,4 +14,5 @@ Garnelo et al. (2016) experiment with a toy example having only two types of com
 
 <ol>
   <li align="justify"> Garnelo et al. (2016). Towards deep symbolic reinforcement learning. <i> arXiv preprint arXiv:1609.05518 </i>. </li>
+  <li align="justify"> Niekerk et al. (2018). Will it blend? Composing value functions in reinforcement learning. <i> arXiv preprint arXiv:1807.04439 </i>. </li>
 </ol>
