@@ -1,6 +1,15 @@
-<h2 align="center">
-  Towards abstract symbol learning
-</h2>
+<div class="container">
+  <div class="row">
+    <div class="col-sm">
+      <img align="left" src="symbol.png" height=50/>
+    </div>
+    <div class="col">
+      <h1 align="justify">
+        Towards abstract symbol learning
+      </h1>
+    </div>
+  </div>
+</div>
 
 <p align="justify">
 Following the architecture proposed by Garnelo et al. (2016) we will explore its transfer learning capabilities. When a new situation is encountered, the system needs to hypothesize or find similarities (objects or elements)  with previously encountered scenarios. This can be done by introducing separate Q-functions for each task and then  take the composition of the Q-functions (Niekerk et al. (2018)).
