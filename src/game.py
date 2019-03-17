@@ -4,29 +4,14 @@ from __future__ import unicode_literals
 
 import itertools
 import math
-import matplotlib
 import operator
 import os
 import random
-import subprocess
-import sys
-import time
 
-import numpy             as np
-import matplotlib.pyplot as plt
+import numpy as np
 
-from time              import sleep
-from collections       import defaultdict
-from datetime          import datetime
-from scipy.interpolate import spline
-
-from constants         import *
-from plot_stuff        import *
-# from utils             import *
-from display           import *
-from plot_stuff        import *
-
-
+from constants import *
+from display   import *
 
 
 def pick_random_spot(field):
@@ -261,7 +246,6 @@ def interactive(context_jumps=[1, 2, 3], walls=False):
             print(display_interactions(spot_interactions(field, context, walls), CON(jumps)))
         print("")
         # time_step(field, q, CONTEXT3)
-
 
 
 def step_by_step(context_jumps=2, higher_order=True):

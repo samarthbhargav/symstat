@@ -1,4 +1,3 @@
-
 NOTHING = 0
 WALL = 1
 PLAYER = 2

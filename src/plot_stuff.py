@@ -1,21 +1,9 @@
-import itertools
-import math
+# -*- coding: utf-8 -*-
+from __future__ import print_function as print_future
+from __future__ import unicode_literals
+
 import matplotlib
-import operator
-import os
-import random
-import subprocess
-import sys
-import time
-
-import numpy             as np
 import matplotlib.pyplot as plt
-
-from time              import sleep
-from collections       import defaultdict
-from datetime          import datetime
-from scipy.interpolate import spline
-
 
 
 def redo_plots():
@@ -27,6 +15,7 @@ def redo_plots():
                  b_accuracies=[0.5320912698412699, 0.7657094155844156, 0.8133306277056278, 0.843648088023088, 0.8355270562770564, 0.8421751443001444, 0.8490972222222222, 0.8745290404040403, 0.8783948412698412, 0.8706448412698414, 0.848988095238095, 0.857313492063492, 0.8352393578643579, 0.8579801587301586, 0.8406686507936509, 0.8522638888888888, 0.8762083333333335, 0.8502175324675326, 0.8460297619047619, 0.8608412698412697, 0.8539464285714287],
                  b_label="Higher Order",
                  experiment_name='Con7_Gam0.8_comp_2018-04-13_08-41-06')
+
 
 def test_plot_compare():
     plot_compare(epochs=[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200],

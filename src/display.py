@@ -1,5 +1,5 @@
-
 from utils import *
+
 
 def display_interactions(interactions, context=None):
     if context is None:
@@ -72,7 +72,6 @@ def display(field, score=None, rate=None, time_step=None, until=None, preamble=N
 
 def display_interaction(interaction):
     return "{}: {}".format(AVA[interaction[0]], interaction[1])
-
 
 
 def output_to_file(progress_string, steps_per_epoch, amount_of_epochs, context, mode, score_per_epoch, rate_per_epoch):

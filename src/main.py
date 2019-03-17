@@ -129,7 +129,6 @@ def experiment(context_jumps, size, n_guys, n_agents, n_epochs, n_train_steps, t
     return (test_epochs, test_scores, test_accuracies)
 
 
-
 def full_run():
     EPOCHS = 200
     INTERVAL = 10
@@ -264,29 +263,29 @@ def train(steps_per_epoch, amount_of_epochs, inspection_interval, print_interval
     output_to_file(progress_string, steps_per_epoch, amount_of_epochs, context, mode, score_per_epoch, rate_per_epoch)
 
 
-
-if (len(sys.argv) > 1 and sys.argv[1] == "interactive"):
-    interactive()
-elif (len(sys.argv) > 1 and sys.argv[1] == "steps"):
-    step_by_step(3)
-elif (len(sys.argv) > 1 and sys.argv[1] == "experiments"):
-    train(steps_per_epoch=100,
-          amount_of_epochs=5000,
-          inspection_interval=None,
-          print_interval=1000,
-          context_jumps=2,
-          mode="regular")
-    train(steps_per_epoch=100,
-          amount_of_epochs=5000,
-          inspection_interval=None,
-          print_interval=1000,
-          context_jumps=3,
-          mode="regular")
-    train(steps_per_epoch=100,
-          amount_of_epochs=5000,
-          inspection_interval=None,
-          print_interval=1000,
-          context_jumps=4,
-          mode="regular")
-else:
-    redo_plots()
+if __name__ == "__main__":
+    if (len(sys.argv) > 1 and sys.argv[1] == "interactive"):
+        interactive()
+    elif (len(sys.argv) > 1 and sys.argv[1] == "steps"):
+        step_by_step(3)
+    elif (len(sys.argv) > 1 and sys.argv[1] == "experiments"):
+        train(steps_per_epoch=100,
+              amount_of_epochs=5000,
+              inspection_interval=None,
+              print_interval=1000,
+              context_jumps=2,
+              mode="regular")
+        train(steps_per_epoch=100,
+              amount_of_epochs=5000,
+              inspection_interval=None,
+              print_interval=1000,
+              context_jumps=3,
+              mode="regular")
+        train(steps_per_epoch=100,
+              amount_of_epochs=5000,
+              inspection_interval=None,
+              print_interval=1000,
+              context_jumps=4,
+              mode="regular")
+    else:
+        redo_plots()
