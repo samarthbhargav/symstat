@@ -1,4 +1,28 @@
+# -*- coding: utf-8 -*-
+from __future__ import print_function as print_future
+from __future__ import unicode_literals
 
+import itertools
+import math
+import matplotlib
+import operator
+import os
+import random
+import subprocess
+import sys
+import time
+
+import numpy             as np
+import matplotlib.pyplot as plt
+
+from time              import sleep
+from collections       import defaultdict
+from datetime          import datetime
+from scipy.interpolate import spline
+
+from constants         import *
+from plot_stuff        import *
+from game              import *
 
 
 def experiment(context_jumps, size, n_guys, n_agents, n_epochs, n_train_steps, test_interval,

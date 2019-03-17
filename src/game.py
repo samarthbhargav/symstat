@@ -2,24 +2,29 @@
 from __future__ import print_function as print_future
 from __future__ import unicode_literals
 
-import numpy as np
-import os
-from time import sleep
-import sys
-import subprocess
-from collections import defaultdict
-import random
 import itertools
-import operator
-import time
-from datetime import datetime
 import math
-import matplotlib.pyplot as plt
 import matplotlib
+import operator
+import os
+import random
+import subprocess
+import sys
+import time
+
+import numpy             as np
+import matplotlib.pyplot as plt
+
+from time              import sleep
+from collections       import defaultdict
+from datetime          import datetime
 from scipy.interpolate import spline
 
-
-
+from constants         import *
+from plot_stuff        import *
+# from utils             import *
+from display           import *
+from plot_stuff        import *
 
 
 
@@ -230,3 +235,79 @@ def time_step(field, q, context, verbose=False, give_string=False, walls=False, 
         return (reward, given_string)
     else:
         return reward
+
+
+def interactive(context_jumps=[1, 2, 3], walls=False):
+    field = initialize_game(HEIGHT, WIDTH, N_GOOD_GUYS, N_BAD_GUYS, walls)
+
+    score = 0
+    render(field, score)
+    q = initialize_q()
+
+    jumps_and_contexts = [(jumps, make_context(jumps)) for jumps in context_jumps]
+
+    while 1:
+        inp = input("Use WASD keys to move: ")
+
+        if (inp not in ACTIONS):
+            break;
+
+        score += move(field, inp)
+        render(field, score)
+
+        print("Move: {}".format(MOV[inp]))
+        print("")
+        for jumps, context in jumps_and_contexts:
+            print(display_interactions(spot_interactions(field, context, walls), CON(jumps)))
+        print("")
+        # time_step(field, q, CONTEXT3)
+
+
+
+def step_by_step(context_jumps=2, higher_order=True):
+    field = initialize_game(HEIGHT, WIDTH, N_GOOD_GUYS, N_BAD_GUYS)
+
+    context = make_context(context_jumps)
+
+    score = 0
+    negatives = 0
+    positives = 0
+    steps = 0
+
+    q = initialize_q()
+
+    clear()
+    print("Step {}".format(steps))
+    print(display(field, score, percentage(positives, negatives)))
+
+    while 1:
+        inp = input("Press q to quit, n for new field, or any key to continue: ")
+        if (inp == 'q'):
+            break;
+
+        if (inp == 'n'):
+            score = 0
+            negatives = 0
+            positives = 0
+            steps = 0
+            field = initialize_game(HEIGHT, WIDTH, N_GOOD_GUYS, N_BAD_GUYS)
+            clear()
+            print("Step {}".format(steps))
+            print(display(field, score, percentage(positives, negatives)))
+            continue
+
+        (reward, given_string) = time_step(field, q, context, give_string=True, higher_order=higher_order)
+
+        if (reward == -1):
+            negatives += 1
+
+        if (reward == 1):
+            positives += 1
+
+        score += reward
+        steps += 1
+
+        clear()
+        print("Step {}".format(steps))
+        print(display(field, score, percentage(positives, negatives)))
+        print(given_string)
