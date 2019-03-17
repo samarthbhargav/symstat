@@ -19,6 +19,12 @@ Following the architecture proposed by Garnelo et al. (2016) we will explore its
 Garnelo et al. (2016) experiment with a toy example having only two types of components/objects (positive and negative). If the system is able to classify different types of positive and negative objects, it would be a step towards solving the task of combining various objects into categories (a task at which humans excel). Ideally, the agent would then be able to solve new tasks without training/learning.
 </p>
 
+<h3> Execution </h3>
+
+```
+python game.py interactive|steps|experiments
+```
+
 <h3> References </h3>
 
 <ol>
