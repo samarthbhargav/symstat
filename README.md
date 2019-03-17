@@ -22,7 +22,7 @@ Garnelo et al. (2016) experiment with a toy example having only two types of com
 <h3> Execution </h3>
 
 ```
-python game.py interactive|steps|experiments
+python src/game.py interactive|steps|experiments
 ```
 
 <h3> References </h3>

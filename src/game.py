@@ -411,8 +411,8 @@ def update_string(current_epoch, amount_of_epochs, score_per_epoch, rate_per_epo
 
 def output_to_file(progress_string, steps_per_epoch, amount_of_epochs, context, mode, score_per_epoch, rate_per_epoch):
     tim = time.time()
-    file_name_values = 'values_{}.txt'.format(tim)
-    file_name_plot = 'plot_{}.png'.format(tim)
+    file_name_values = '../results/values_{}.txt'.format(tim)
+    file_name_plot = '../results/plot_{}.png'.format(tim)
 
     with open(file_name_values, "w") as text_file:
         text_file.write("EXPERIMENT ON {}".format(tim))
@@ -722,7 +722,7 @@ def experiment(context_jumps, size, n_guys, n_agents, n_epochs, n_train_steps, t
     # OUTPUT TO FILE
     now = datetime.now()
     experiment_name = name if name else 'experiment_{}'.format(now.strftime('%Y-%m-%d_%H-%M-%S'))
-    text_file_name = '{}.txt'.format(experiment_name)
+    text_file_name = '../results/{}.txt'.format(experiment_name)
 
     with open(text_file_name, "w") as file:
         output = lambda text: print(text, file=file)
@@ -803,7 +803,7 @@ def plot(epochs, scores, accuracies, experiment_name, show=False, color='k'):
     plt.suptitle(experiment_name)
     # figure.tight_layout()
 
-    plt.savefig("{}.png".format(experiment_name))
+    plt.savefig("../results/{}.png".format(experiment_name))
     if (show): plt.show()
 
 
@@ -840,7 +840,7 @@ def plot_compare(epochs, a_scores, a_accuracies, a_label, b_scores, b_accuracies
     plt.suptitle(experiment_name)
     # figure.tight_layout()
 
-    plt.savefig("{}.png".format(experiment_name))
+    plt.savefig("../results/{}.png".format(experiment_name))
     if (show): plt.show()
 
 
