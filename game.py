@@ -206,7 +206,7 @@ def display_interactions(interactions, context=None):
 
 
 def clear():
-    os.system('cls')
+    os.system('clear')
     print("")
 
 
@@ -309,15 +309,15 @@ def interactive(context_jumps=[1, 2, 3], walls=False):
     jumps_and_contexts = [(jumps, make_context(jumps)) for jumps in context_jumps]
 
     while 1:
-        input = raw_input("Use WASD keys to move: ")
+        inp = input("Use WASD keys to move: ")
 
-        if (input not in ACTIONS):
+        if (inp not in ACTIONS):
             break;
 
-        score += move(field, input)
+        score += move(field, inp)
         render(field, score)
 
-        print("Move: {}".format(MOV[input]))
+        print("Move: {}".format(MOV[inp]))
         print("")
         for jumps, context in jumps_and_contexts:
             print(display_interactions(spot_interactions(field, context, walls), CON(jumps)))
@@ -353,11 +353,11 @@ def step_by_step(context_jumps=2, higher_order=True):
     print(display(field, score, percentage(positives, negatives)))
 
     while 1:
-        input = raw_input("Press q to quit, n for new field, or any key to continue: ")
-        if (input == 'q'):
+        inp = input("Press q to quit, n for new field, or any key to continue: ")
+        if (inp == 'q'):
             break;
 
-        if (input == 'n'):
+        if (inp == 'n'):
             score = 0
             negatives = 0
             positives = 0
@@ -529,7 +529,7 @@ def train(steps_per_epoch, amount_of_epochs, inspection_interval, print_interval
                 clear()
                 print(display(field, score, percentage(positives, negatives), current_time_step, steps_per_epoch, progress_string))
                 print(given_string)
-                if raw_input("Type 'skip' to skip or any key to continue: ") == "skip":
+                if input("Type 'skip' to skip or any key to continue: ") == "skip":
                     break
 
             current_time_step += 1
@@ -661,7 +661,7 @@ def time_step(field, q, context, verbose=False, give_string=False, walls=False, 
                 interactions_strings.append(str)
 
     COLUMNS = 3
-    interactions_strings_columns = [interactions_strings[i:i + COLUMNS] for i in xrange(0, len(interactions_strings), COLUMNS)]
+    interactions_strings_columns = [interactions_strings[i:i + COLUMNS] for i in range(0, len(interactions_strings), COLUMNS)]
 
     for row in interactions_strings_columns:
         given_string += "   ".join(row) + os.linesep
@@ -961,19 +961,19 @@ elif (len(sys.argv) > 1 and sys.argv[1] == "experiments"):
           amount_of_epochs=5000,
           inspection_interval=None,
           print_interval=1000,
-          context=NARROW,
+          context_jumps=2,
           mode="regular")
     train(steps_per_epoch=100,
           amount_of_epochs=5000,
           inspection_interval=None,
           print_interval=1000,
-          context=MEDIUM,
+          context_jumps=3,
           mode="regular")
     train(steps_per_epoch=100,
           amount_of_epochs=5000,
           inspection_interval=None,
           print_interval=1000,
-          context=WIDE,
+          context_jumps=4,
           mode="regular")
 else:
     # compare_higher_order()
