@@ -47,22 +47,22 @@ def deepnn(x_images):
 
   x_images = standarization(x_images)
   x_images = tf.cond(keep_prob < 1.0, lambda: image_processing(x_images), lambda: x_images)
- 
+
   with tf.name_scope('fc1'):
     h_fc1 = tf.contrib.layers.fully_connected(x_images, 1000)
-    
+
   with tf.name_scope('fc2'):
     h_fc2 = tf.contrib.layers.fully_connected(h_fc1, 500)
-    
+
   with tf.name_scope('fc3'):
     h_fc3 = tf.contrib.layers.fully_connected(h_fc2, 250)
-    
+
   with tf.name_scope('fc4'):
     h_fc4 = tf.contrib.layers.fully_connected(h_fc3, 250)
 
   with tf.name_scope('fc5'):
     h_fc5 = tf.layers.batch_normalization(tf.contrib.layers.fully_connected(h_fc4, 250))
-  
+
   # Dropout - controls the complexity of the model, prevents co-adaptation of
   # features.
   with tf.name_scope('dropout'):
@@ -120,7 +120,7 @@ def main(_):
   with tf.name_scope('cross_entropy'):
     #cross_entropy = tf.nn.softmax_cross_entropy_with_logits(labels=y_, logits=y_mlp)
     cross_entropy = tf.reduce_sum(tf.nn.sigmoid_cross_entropy_with_logits(labels=y_, logits=y_mlp), axis=1)
-    
+
   with tf.name_scope('wmc'):
     normalized_logits = tf.nn.sigmoid(y_mlp)
     wmc_tmp = tf.zeros([batch_number,])
@@ -137,7 +137,7 @@ def main(_):
     log_wmc = tf.log(wmc_tmp)
     loss = -0.0005*tf.multiply(unlabel_examples, log_wmc) - 0.0005*tf.multiply(label_examples, log_wmc) + tf.multiply(label_examples, cross_entropy)
     loss = tf.reduce_mean(loss)
-  
+
   with tf.name_scope('adam_optimizer'):
     train_step = tf.train.AdamOptimizer(1e-4).minimize(loss)
 
@@ -182,7 +182,7 @@ def main(_):
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
   parser.add_argument('--data_path', type=str,
-                      default='mnist_data/',
+                      default='../../data/',
                       help='Directory for storing input data')
   parser.add_argument('--num_labeled', type=int,
                       help='Num of labeled examples provided for semi-supervised learning.')
