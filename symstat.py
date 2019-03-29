@@ -7,7 +7,7 @@ import torch
 import numpy as np
 
 from arg_utils import parse_args
-
+from trainer import Trainer
 
 def supress_log(lib_name):
     logging.getLogger(lib_name).setLevel(logging.INFO)
@@ -48,6 +48,11 @@ if __name__ == '__main__':
         torch.cuda.manual_seed_all(args.seed)
 
     if args.module == "train":
-        pass
-    elif args.module == "compute-metrics":
-        pass
+        trainer = Trainer(args)
+        if args.test:
+            trainer.load()
+            trainer.test()
+        else:
+            trainer.train(args.epochs)
+    else:
+        raise ValueError()
