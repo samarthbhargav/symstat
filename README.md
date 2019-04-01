@@ -16,3 +16,15 @@
 <ol>
   <li align="justify"> Xu et al. (2018). A Semantic Loss Function for Deep Learning with Symbolic Knowledge. <i> arXiv preprint arXiv:1711.11157 </i>.
 </ol>
+
+
+## Install 
+
+```
+pip3 install https://download.pytorch.org/whl/cpu/torch-1.0.1.post2-cp36-cp36m-linux_x86_64.whl
+pip3 install torchvision
+pip install -r requirements.txt
+python -m spacy download en
+
+mkdir logs
+```
