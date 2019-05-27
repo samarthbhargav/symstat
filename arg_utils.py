@@ -1,5 +1,6 @@
 import argparse
 
+
 def parse_args():
     """Parse args
     """
@@ -30,6 +31,8 @@ def add_train_args(parser):
                         type=int, default=2, help="batch size for training")
     parser.add_argument("--epochs", type=int, default=1,
                         help="batch size for training")
+    parser.add_argument("--data-percentage", type=float, default=1.0,
+                        help="the percentage of train data to use for training the model")
     parser.add_argument("--device", type=str, default="cpu",
                         help="device to train model on")
     parser.add_argument("--test", action="store_true",
@@ -40,4 +43,3 @@ def add_train_args(parser):
     # Learning rates
     parser.add_argument("--learning-rate", type=float, dest="learning_rate",
                         help="learning rate for the optimizer", default=1e-3)
-

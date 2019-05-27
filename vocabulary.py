@@ -5,6 +5,7 @@ from collections import Counter
 import spacy
 import numpy as np
 
+
 class Vocabulary:
     UNK = "<UNK>"
     SOS = "<SOS>"
@@ -69,7 +70,8 @@ class Vocabulary:
         # add specials
         for tok in [self.UNK, self.EOS, self.SOS]:
             self.vocab[tok] = len(self.vocab)
-        self.rev_index = dict([(idx, word) for (word,idx) in self.vocab.items()])
+        self.rev_index = dict([(idx, word)
+                               for (word, idx) in self.vocab.items()])
         log.info("Vocab built! Size: {}".format(len(self.vocab)))
 
     def pad(self, doc):
@@ -81,7 +83,7 @@ class Vocabulary:
 
         processed = self.process_text(text, replace_unknown=True)
         d2i = [self.vocab[word] for word in processed]
-        
+
         return d2i, prep_text
 
     def __len__(self):
