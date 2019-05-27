@@ -28,11 +28,11 @@ def add_train_args(parser):
     parser.add_argument("--num-workers", type=int, dest="num_workers", default=1,
                         help="number of workers to use")
     parser.add_argument("--batch-size", dest="batch_size",
-                        type=int, default=2, help="batch size for training")
+                        type=int, default=32, help="batch size for training")
     parser.add_argument("--epochs", type=int, default=1,
                         help="batch size for training")
-    parser.add_argument("--data-percentage", type=float, default=1.0,
-                        help="the percentage of train data to use for training the model")
+    parser.add_argument("--unlabeled", type=float, required=True,
+                        help="the percentage of train data to erase labels")
     parser.add_argument("--device", type=str, default="cpu",
                         help="device to train model on")
     parser.add_argument("--test", action="store_true",

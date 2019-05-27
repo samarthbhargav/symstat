@@ -7,36 +7,44 @@ from torch import nn
 log = logging.getLogger(__name__)
 
 
+class Flatten(nn.Module):
+    def forward(self, inp):
+        return inp.view(inp.size(0), -1)
+
+
+class PrintShape(nn.Module):
+    def forward(self, x):
+        print(x.size())
+        return x
+
+
+def get_layers(n_classes):
+    layers = OrderedDict()
+    layers["flatten"] = Flatten()
+    layers["fc_1"] = nn.Linear(28 * 28, 512)
+    layers["relu_1"] = nn.ReLU(inplace=True)
+
+    layers["fc_2"] = nn.Linear(512, 128)
+    layers["relu_2"] = nn.ReLU(inplace=True)
+
+    layers["fc_3"] = nn.Linear(128, n_classes)
+    layers["log_sf"] = nn.LogSoftmax(dim=1)
+    return nn.Sequential(layers)
+
+
 class SemanticLossModule(nn.Module):
-    def __init__(self, device, n_classes, vocabulary, args, embedding_dim=200):
+    def __init__(self, device, n_classes, args):
         super().__init__()
         self.device = device
-        self.vocabulary = vocabulary
-        self.embedding_dim = embedding_dim
-        log.info("Creating an embedding matrix with vocab size: {}".format(
-            len(vocabulary)))
-        self.embedding = nn.Embedding(len(vocabulary), self.embedding_dim)
+        self.layers = get_layers(n_classes)
 
-        layers = OrderedDict()
-        layers["fc_1"] = nn.Linear(self.embedding_dim, 128)
-        layers["relu_1"] = nn.ReLU(True)
-        layers["fc_2"] = nn.Linear(128, 128)
-        layers["relu_2"] = nn.ReLU(True)
-        layers["fc_3"] = nn.Linear(128, n_classes)
-        self.layers = nn.Sequential(layers)
+        log.info("Classifier: {}".format(self.layers))
+        self.criterion = nn.NLLLoss()
 
     def forward(self, x):
-        x = torch.LongTensor(x)
-        x = self.embedding(x)
-        # perform MoT pooling
-        x, _ = x.max(dim=0)
         return self.layers(x)
 
-    def compute_loss(self, text, labels):
-        criterion = nn.BCEWithLogitsLoss()
-        labels = torch.FloatTensor(labels)
-        out = self(text)
-        # warn: this only works for a single sample
-        loss = criterion(out, labels.view(-1))
-
+    def compute_loss(self, x, y, x_unlab, u_unlab):
+        out = self(x)
+        loss = self.criterion(out, y)
         return loss
