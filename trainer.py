@@ -144,6 +144,10 @@ class Trainer(object):
             x, y, x_unlab, y_unlab = FashionMNIST.separate_unlabeled(
                 x_raw, y_raw)
 
+            # print("----")
+            # print(x.size())
+            # print(x_unlab.size())
+
             if phase == "training":
                 # zero the parameter gradients
                 optimizer.zero_grad()

@@ -45,6 +45,38 @@ class SemanticLossModule(nn.Module):
         return self.layers(x)
 
     def compute_loss(self, x, y, x_unlab, u_unlab):
-        out = self(x)
-        loss = self.criterion(out, y)
-        return loss
+
+        if x.size(0) > 0:
+            out = self(x)
+            loss = self.criterion(out, y)
+        else:
+            loss = 0.
+
+        if x_unlab.size(0) > 0:
+            out_unlab = self(x_unlab)
+            sl = self.compute_semantic_loss(out_unlab)
+        else:
+            sl = 0.
+
+        return loss + 0.5 * sl
+
+
+    def compute_semantic_loss(self, probs):
+        '''
+        Return semantic loss for exactly one constraint
+        '''
+
+        # num_classes   = probs.size()[0]
+        num_classes   = 10
+
+        norm_probs    = torch.sigmoid(probs)
+        semantic_loss = torch.tensor(0.)
+
+        for i in range(num_classes):
+            one_situation    = [1.] * num_classes
+            one_situation[i] = 0.
+            one_situation    = torch.tensor(one_situation)
+
+            semantic_loss   += torch.prod(one_situation - norm_probs)
+
+        return -torch.log(torch.abs(semantic_loss))
