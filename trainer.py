@@ -6,11 +6,12 @@ import logging
 import torch
 import numpy as np
 import torch.nn as nn
+import torch.nn.functional as F
 import torch.optim as optim
 from torchvision import transforms
 from torch.utils.data import DataLoader
 from torch.utils.data.sampler import SubsetRandomSampler
-from sklearn.metrics import f1_score, precision_score, recall_score
+from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_score
 
 from models import SemanticLossModule
 from fashion_mnsit import FashionMNIST
@@ -35,6 +36,10 @@ class Multilabel:
     def precision_score(y_true, y_pred):
         return precision_score(y_true, y_pred, average="micro")
 
+    @staticmethod
+    def accuracy_score(y_true, y_pred):
+        return accuracy_score(y_true, y_pred)
+
 
 def gather_outputs(forward_func, loader, threshold=0.5):
     y_true = []
@@ -42,6 +47,13 @@ def gather_outputs(forward_func, loader, threshold=0.5):
     log.info("Gathering outputs")
     with torch.no_grad():
         for index, (x_raw, y_raw) in enumerate(loader):
+
+            output = F.log_softmax(forward_func(x_raw), dim=1)
+            pred   = output.argmax(dim=1, keepdim=True)
+
+            y_pred.append(pred.cpu().view(-1).numpy())
+            y_true.append(y_raw.cpu().view(-1).numpy())
+
             if (index + 1) % 1000 == 0:
                 log.info("Eval loop: {} done".format(index + 1))
 
@@ -144,10 +156,6 @@ class Trainer(object):
             x, y, x_unlab, y_unlab = FashionMNIST.separate_unlabeled(
                 x_raw, y_raw)
 
-            # print("----")
-            # print(x.size())
-            # print(x_unlab.size())
-
             if phase == "training":
                 # zero the parameter gradients
                 optimizer.zero_grad()
@@ -163,8 +171,8 @@ class Trainer(object):
                     optimizer.step()
 
             # statistics
-            running_loss += loss.item() * len(x)  # TODO: change?
-            running_n += len(x)
+            running_loss += loss.item() * (len(x) + len(x_unlab))  # TODO: change?
+            running_n += (len(x) + len(x_unlab))
             if batch_idx % 50 == 0:
                 log.info("\t[{}/{}] Batch {}/{}: Loss: {:.4f}".format(phase,
                                                                       epoch,
@@ -174,17 +182,18 @@ class Trainer(object):
 
         epoch_loss = running_loss / self.dataset_sizes[phase]
 
-        # log.info("Computing scores")
-        # y_true, y_pred = gather_outputs(
-        #     self.model.forward, self.dataloaders[phase])
+        log.info("Computing scores")
+        y_true, y_pred = gather_outputs(
+            self.model.forward, self.dataloaders[phase])
 
-        # scores = {
-        #     "f1": Multilabel.f1_score(y_true, y_pred),
-        #     "recall": Multilabel.recall_score(y_true, y_pred),
-        #     "precision": Multilabel.precision_score(y_true, y_pred)
-        # }
+        scores = {
+            "accuracy": Multilabel.accuracy_score(y_true, y_pred)
+            # "f1": Multilabel.f1_score(y_true, y_pred),
+            # "recall": Multilabel.recall_score(y_true, y_pred),
+            # "precision": Multilabel.precision_score(y_true, y_pred)
+        }
 
-        # log.info("Scores: {}".format(scores))
+        log.info("Scores: {}".format(scores))
 
         log.info('{} Loss: {:.4f}'.format(
             phase, epoch_loss))
