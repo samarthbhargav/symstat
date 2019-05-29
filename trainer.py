@@ -51,8 +51,8 @@ def gather_outputs(forward_func, loader, threshold=0.5):
             output = F.log_softmax(forward_func(x_raw), dim=1)
             pred   = output.argmax(dim=1, keepdim=True)
 
-            y_pred.append(pred.cpu().view(-1).numpy())
-            y_true.append(y_raw.cpu().view(-1).numpy())
+            y_pred.extend(pred.cpu().view(-1).numpy())
+            y_true.extend(y_raw.cpu().view(-1).numpy())
 
             if (index + 1) % 1000 == 0:
                 log.info("Eval loop: {} done".format(index + 1))
@@ -182,18 +182,19 @@ class Trainer(object):
 
         epoch_loss = running_loss / self.dataset_sizes[phase]
 
-        log.info("Computing scores")
-        y_true, y_pred = gather_outputs(
-            self.model.forward, self.dataloaders[phase])
+        if phase != 'training':
+            log.info("Computing scores")
+            y_true, y_pred = gather_outputs(
+                self.model.forward, self.dataloaders[phase])
 
-        scores = {
-            "accuracy": Multilabel.accuracy_score(y_true, y_pred)
-            # "f1": Multilabel.f1_score(y_true, y_pred),
-            # "recall": Multilabel.recall_score(y_true, y_pred),
-            # "precision": Multilabel.precision_score(y_true, y_pred)
-        }
+            scores = {
+                "accuracy": Multilabel.accuracy_score(y_true, y_pred)
+                # "f1": Multilabel.f1_score(y_true, y_pred),
+                # "recall": Multilabel.recall_score(y_true, y_pred),
+                # "precision": Multilabel.precision_score(y_true, y_pred)
+            }
 
-        log.info("Scores: {}".format(scores))
+            log.info("Scores: {}".format(scores))
 
         log.info('{} Loss: {:.4f}'.format(
             phase, epoch_loss))

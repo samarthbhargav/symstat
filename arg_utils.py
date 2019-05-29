@@ -33,6 +33,8 @@ def add_train_args(parser):
                         help="batch size for training")
     parser.add_argument("--unlabeled", type=float, required=True,
                         help="the percentage of train data to erase labels")
+    parser.add_argument("--w_s", type=float,
+                        default=0.5, help="weight of semantic loss")
     parser.add_argument("--device", type=str, default="cpu",
                         help="device to train model on")
     parser.add_argument("--test", action="store_true",
