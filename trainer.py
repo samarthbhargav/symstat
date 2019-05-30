@@ -48,7 +48,7 @@ def gather_outputs(forward_func, loader, threshold=0.5):
     with torch.no_grad():
         for index, (x_raw, y_raw) in enumerate(loader):
 
-            output = torch.sigmoid(forward_func(x_raw), dim=1)
+            output = torch.sigmoid(forward_func(x_raw))
             pred   = output.argmax(dim=1, keepdim=True)
 
             y_pred.extend(pred.cpu().view(-1).numpy())
@@ -178,7 +178,7 @@ class Trainer(object):
             # statistics
             running_loss       += loss.item() * (len(x) + len(x_unlab))  # TODO: change?
             running_loss_lab   += ce.item() * (len(x) + len(x_unlab))
-            running_loss_unlab += sl.item() * (len(x) + len(x_unlab))
+            running_loss_unlab += float(sl) * (len(x) + len(x_unlab))
             running_n          += (len(x) + len(x_unlab))
 
             if batch_idx % 50 == 0:
