@@ -79,7 +79,7 @@ class SemanticLossModule(nn.Module):
                     continue
                 s_part = torch.mul(s_part, (1 - p_j))
             s = torch.add(s, s_part)
-            # s += s_part
+
         return -1 * torch.log(s)
 
     def compute_semantic_loss(self, norm_probs, num_classes=10):

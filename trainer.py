@@ -14,7 +14,7 @@ from torch.utils.data.sampler import SubsetRandomSampler
 from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_score
 
 from models import SemanticLossModule
-from fashion_mnsit import FashionMNIST
+from fashion_mnsit import FashionMNIST, balanced_batches
 
 log = logging.getLogger(__name__)
 
@@ -152,7 +152,8 @@ class Trainer(object):
 
         n_batches = (self.dataset_sizes[phase] // self.batch_size) + 1
         # Iterate over data.
-        for batch_idx, (x_raw, y_raw) in enumerate(self.dataloaders[phase], 1):
+        # for batch_idx, (x_raw, y_raw) in enumerate(self.dataloaders[phase], 1):
+        for batch_idx, (x_raw, y_raw) in enumerate(balanced_batches(self.datasets[phase], self.batch_size)):
             x, y, x_unlab, y_unlab = FashionMNIST.separate_unlabeled(
                 x_raw, y_raw)
 
@@ -182,19 +183,15 @@ class Trainer(object):
 
         epoch_loss = running_loss / self.dataset_sizes[phase]
 
-        if phase != 'training':
-            log.info("Computing scores")
-            y_true, y_pred = gather_outputs(
-                self.model.forward, self.dataloaders[phase])
+        log.info("Computing scores")
+        y_true, y_pred = gather_outputs(
+            self.model.forward, self.dataloaders[phase])
 
-            scores = {
-                "accuracy": Multilabel.accuracy_score(y_true, y_pred)
-                # "f1": Multilabel.f1_score(y_true, y_pred),
-                # "recall": Multilabel.recall_score(y_true, y_pred),
-                # "precision": Multilabel.precision_score(y_true, y_pred)
-            }
+        scores = {
+            "accuracy": Multilabel.accuracy_score(y_true, y_pred)
+        }
 
-            log.info("Scores: {}".format(scores))
+        log.info("{} Scores: {}".format(phase, scores))
 
         log.info('{} Loss: {:.4f}'.format(
             phase, epoch_loss))
