@@ -48,7 +48,7 @@ def gather_outputs(forward_func, loader, threshold=0.5):
     with torch.no_grad():
         for index, (x_raw, y_raw) in enumerate(loader):
 
-            output = F.log_softmax(forward_func(x_raw), dim=1)
+            output = torch.sigmoid(forward_func(x_raw), dim=1)
             pred   = output.argmax(dim=1, keepdim=True)
 
             y_pred.extend(pred.cpu().view(-1).numpy())
@@ -147,7 +147,9 @@ class Trainer(object):
         else:
             self.model.eval()
 
-        running_loss = 0.0
+        running_loss       = 0.0
+        running_loss_lab   = 0.0
+        running_loss_unlab = 0.0
         running_n = 0.0
 
         n_batches = (self.dataset_sizes[phase] // self.batch_size) + 1
@@ -164,7 +166,9 @@ class Trainer(object):
             # forward
             # track history if only in train
             with torch.set_grad_enabled(phase == 'training'):
-                loss = self.model.compute_loss(x, y, x_unlab, y_unlab)
+                ce, sl = self.model.compute_loss(x, y, x_unlab, y_unlab)
+
+                loss = (x.size(0) * ce + x_unlab.size(0) * sl) / (x.size(0) + x_unlab.size(0))
 
                 # backward + optimize only if in training phase
                 if phase == 'training':
@@ -172,14 +176,18 @@ class Trainer(object):
                     optimizer.step()
 
             # statistics
-            running_loss += loss.item() * (len(x) + len(x_unlab))  # TODO: change?
-            running_n += (len(x) + len(x_unlab))
+            running_loss       += loss.item() * (len(x) + len(x_unlab))  # TODO: change?
+            running_loss_lab   += ce.item() * (len(x) + len(x_unlab))
+            running_loss_unlab += sl.item() * (len(x) + len(x_unlab))
+            running_n          += (len(x) + len(x_unlab))
+
             if batch_idx % 50 == 0:
-                log.info("\t[{}/{}] Batch {}/{}: Loss: {:.4f}".format(phase,
-                                                                      epoch,
-                                                                      batch_idx,
-                                                                      n_batches,
-                                                                      running_loss / running_n))
+                log.info("\t[{}/{}] Batch {}/{}: lab Loss: {:.4f} Unlab Loss: {:.4f}".format(phase,
+                                                                                             epoch,
+                                                                                             batch_idx,
+                                                                                             n_batches,
+                                                                                             running_loss_lab / running_n,
+                                                                                             running_loss_unlab / running_n))
 
         epoch_loss = running_loss / self.dataset_sizes[phase]
 

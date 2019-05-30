@@ -66,7 +66,8 @@ class SemanticLossModule(nn.Module):
             out_unlab = self(x_unlab)
             sl = torch.mean(self.sem_loss(torch.sigmoid(out_unlab)))
 
-        return (x.size(0) * loss + x_unlab.size(0) * sl) / (x.size(0) + x_unlab.size(0))
+        return loss, sl
+        # return (x.size(0) * loss + x_unlab.size(0) * sl) / (x.size(0) + x_unlab.size(0))
         # return sl
 
     def sem_loss(self, probs):
