@@ -12,6 +12,7 @@ from torchvision import transforms
 from torch.utils.data import DataLoader
 from torch.utils.data.sampler import SubsetRandomSampler
 from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_score
+from torch import autograd
 
 from models import SemanticLossModule
 from fashion_mnsit import FashionMNIST, balanced_batches
@@ -156,8 +157,7 @@ class Trainer(object):
         # Iterate over data.
         # for batch_idx, (x_raw, y_raw) in enumerate(self.dataloaders[phase], 1):
         for batch_idx, (x_raw, y_raw) in enumerate(balanced_batches(self.datasets[phase], self.batch_size)):
-            x, y, x_unlab, y_unlab = FashionMNIST.separate_unlabeled(
-                x_raw, y_raw)
+            x, y, x_unlab, y_unlab = FashionMNIST.separate_unlabeled(x_raw, y_raw)
 
             if phase == "training":
                 # zero the parameter gradients
@@ -166,14 +166,16 @@ class Trainer(object):
             # forward
             # track history if only in train
             with torch.set_grad_enabled(phase == 'training'):
-                ce, sl = self.model.compute_loss(x, y, x_unlab, y_unlab)
 
-                loss = (x.size(0) * ce + x_unlab.size(0) * sl) / (x.size(0) + x_unlab.size(0))
-
-                # backward + optimize only if in training phase
                 if phase == 'training':
-                    loss.backward()
-                    optimizer.step()
+                    with autograd.detect_anomaly():
+                        ce, sl = self.model.compute_loss(x, y, x_unlab, y_unlab)
+                        loss = (x.size(0) * ce + x_unlab.size(0) * sl) / (x.size(0) + x_unlab.size(0))
+                        loss.backward()
+                        optimizer.step()
+                else:
+                    ce, sl = self.model.compute_loss(x, y, x_unlab, y_unlab)
+                    loss = (x.size(0) * ce + x_unlab.size(0) * sl) / (x.size(0) + x_unlab.size(0))
 
             # statistics
             running_loss       += loss.item() * (len(x) + len(x_unlab))  # TODO: change?
