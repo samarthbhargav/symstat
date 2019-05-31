@@ -53,22 +53,26 @@ class SemanticLossModule(nn.Module):
             yy[idx, _] = 1.0
         return yy
 
-    def compute_loss(self, x, y, x_unlab, u_unlab):
+    def compute_loss(self, x, y, x_unlab, y_unlab):
 
         loss = 0.
         sl   = 0.
 
         if x.size(0) > 0:
             out = self(x)
-            loss = self.criterion(out, self.pack_y(y))
+            ce_lab = self.criterion(out, self.pack_y(y))
+            sl_lab = torch.mean(self.sem_loss(torch.sigmoid(out)))
+
+            loss = torch.add(loss, ce_lab)
+            sl   = torch.add(sl, sl_lab)
 
         if x_unlab.size(0) > 0:
             out_unlab = self(x_unlab)
-            sl = torch.mean(self.sem_loss(torch.sigmoid(out_unlab)))
+            sl_unlab = torch.mean(self.sem_loss(torch.sigmoid(out_unlab)))
+
+            sl   = torch.add(sl, sl_unlab)
 
         return loss, sl
-        # return (x.size(0) * loss + x_unlab.size(0) * sl) / (x.size(0) + x_unlab.size(0))
-        # return sl
 
     def sem_loss(self, probs):
         s = torch.zeros(probs.size(0))
