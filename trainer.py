@@ -170,8 +170,11 @@ class Trainer(object):
                 if phase == 'training':
                     with autograd.detect_anomaly():
                         ce, sl = self.model.compute_loss(x, y, x_unlab, y_unlab)
-                        loss = (x.size(0) * ce + x_unlab.size(0) * sl) / (x.size(0) + x_unlab.size(0))
+                        #loss = (x.size(0) * ce + x_unlab.size(0) * sl) / (x.size(0) + x_unlab.size(0))
+                        loss = ce + 0.5 * sl
+                        #loss = torch.add(ce, sl)
                         loss.backward()
+                        torch.nn.utils.clip_grad_norm_(self.model.parameters(), 10)
                         optimizer.step()
                 else:
                     ce, sl = self.model.compute_loss(x, y, x_unlab, y_unlab)

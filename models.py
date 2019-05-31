@@ -58,10 +58,15 @@ class SemanticLossModule(nn.Module):
         loss = 0.
         sl   = 0.
 
+        # print(x.size())
+
+
         if x.size(0) > 0:
             out = self(x)
             ce_lab = self.criterion(out, self.pack_y(y))
             sl_lab = torch.mean(self.sem_loss(torch.sigmoid(out)))
+            # print(torch.sigmoid(out)[0])
+            #print("---")
 
             loss = torch.add(loss, ce_lab)
             sl   = torch.add(sl, sl_lab)
@@ -88,6 +93,7 @@ class SemanticLossModule(nn.Module):
                     continue
                 #s_part = torch.mul(s_part, (1 - p_j))
                 s_part = torch.add(s_part, torch.log(1 - p_j + 1e-9))
+                s_part = torch.clamp(s_part, max=5)
             s = torch.add(s, torch.exp(s_part))
 
 
