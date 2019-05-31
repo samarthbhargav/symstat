@@ -76,13 +76,15 @@ class SemanticLossModule(nn.Module):
         probs = probs.permute(1, 0)
 
         for i, p_i in enumerate(probs):
-            s_part = p_i
+            #s_part = p_i
+            s_part = torch.log(p_i + 1e-9)
             # print(p_i.size())
             for j, p_j in enumerate(probs):
                 if i == j:
                     continue
-                s_part = torch.mul(s_part, (1 - p_j))
-            s = torch.add(s, s_part)
+                #s_part = torch.mul(s_part, (1 - p_j))
+                s_part = torch.add(s_part, torch.log(1 - p_j + 1e-9))
+            s = torch.add(s, torch.exp(s_part))
 
 
         return -1 * torch.log(s)
