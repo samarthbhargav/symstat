@@ -44,4 +44,4 @@ def add_train_args(parser):
 
     # Learning rates
     parser.add_argument("--learning-rate", type=float, dest="learning_rate",
-                        help="learning rate for the optimizer", default=1e-3)
+                        help="learning rate for the optimizer", default=1e-4)

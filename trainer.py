@@ -141,7 +141,7 @@ class Trainer(object):
         else:
             raise ValueError("unknown model")
 
-    def run_epoch(self, epoch, phase, device, optimizer):
+    def run_epoch(self, epoch, phase, device, optimizer, w_s_weight):
         log.info("Phase: {}".format(phase))
         if phase == 'training':
             self.model.train()
@@ -151,7 +151,7 @@ class Trainer(object):
         running_loss       = 0.0
         running_loss_lab   = 0.0
         running_loss_unlab = 0.0
-        running_n = 0.0
+        running_n          = 0.0
 
         n_batches = (self.dataset_sizes[phase] // self.batch_size) + 1
         # Iterate over data.
@@ -170,8 +170,11 @@ class Trainer(object):
                 if phase == 'training':
                     with autograd.detect_anomaly():
                         ce, sl = self.model.compute_loss(x, y, x_unlab, y_unlab)
-                        loss = (x.size(0) * ce + x_unlab.size(0) * sl) / (x.size(0) + x_unlab.size(0))
+                        #loss = (x.size(0) * ce + x_unlab.size(0) * sl) / (x.size(0) + x_unlab.size(0))
+                        loss = ce + 0.5 * sl
+                        #loss = torch.add(ce, sl)
                         loss.backward()
+                        torch.nn.utils.clip_grad_norm_(self.model.parameters(), 10)
                         optimizer.step()
                 else:
                     ce, sl = self.model.compute_loss(x, y, x_unlab, y_unlab)
@@ -219,21 +222,25 @@ class Trainer(object):
         self.model = self.model.to(device)
         optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate)
 
+        anneal_rate = 1. / num_epochs
+        w_s_weight  = 0.
+
         since = time.time()
 
         for epoch in range(1, num_epochs + 1):
             log.info('Epoch {}/{}'.format(epoch, num_epochs))
 
-            train_loss = self.run_epoch(epoch,
-                                        "training", device, optimizer)
+            train_loss = self.run_epoch(epoch, "training", device, optimizer, w_s_weight)
 
             if math.isnan(train_loss):
                 raise ValueError("NaN loss encountered")
 
-            val_loss = self.run_epoch(epoch, "val", device, None)
+            val_loss = self.run_epoch(epoch, "val", device, None, w_s_weight)
 
             if math.isnan(val_loss):
                 raise ValueError("NaN loss encountered")
+
+            w_s_weight = min(1., anneal_rate + w_s_weight)
 
             save_path = os.path.join(
                 self._get_save_path(), self.MODEL_WTS_DIR, "model_{}.wts".format(epoch))

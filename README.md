@@ -4,11 +4,25 @@
     </div>
     <div class="col">
       <h1 align="justify">
-        Semi-supervised learning with mutual exclusivity constraints
+        Semi-supervised learning with Semantic Loss
       </h1>
     </div>
   </div>
 </div>
+
+<h3> Results </h3>
+
+<h4> Isotropic Gaussian blobs </h4>
+
+<h4> Fashion MNIST </h4>
+
+| Model    | Labeled | Unlabeled | CE Loss | Sem Loss        | Accuracy |
+| -------- | :-----: | :-------: | :-----: | :-------------: | -------: |
+| Baseline | 120     | 0         | Yes     | No              | 0.6204   |
+|          | 120     | 0         | Yes     | Yes (w_s = 0.5) | 0.6716   |
+|          | 120     | All       | Yes     | Yes (annealed)  |          |
+
+<h4> Reuters </h4>
 
 
 <h3> References </h3>
