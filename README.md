@@ -16,11 +16,12 @@
 
 <h4> Fashion MNIST </h4>
 
-| Model    | Labeled | Unlabeled | CE Loss | Sem Loss        | Accuracy |
-| -------- | :-----: | :-------: | :-----: | :-------------: | -------: |
-| Baseline | 120     | 0         | Yes     | No              | 0.6204   |
-|          | 120     | 0         | Yes     | Yes (w_s = 0.5) | 0.6716   |
-|          | 120     | All       | Yes     | Yes (annealed)  |          |
+| Model    | Labeled | Unlabeled | CE Loss | Sem Loss (lab)  | Sem Loss (unlab) | Accuracy |
+| -------- | :-----: | :-------: | :-----: | :-------------: | :--------------: | -------: |
+| Baseline | 120     | 0         | Yes     | No              | No               | 0.6204   |
+|          | 120     | 0         | Yes     | Yes (w_s = 0.5) | No               | 0.6716   |
+|          | 120     | All       | Yes     | No              | Yes (annealed)   |          |
+|          | 120     | All       | Yes     | Yes (annealed)  | Yes (annealed)   |          |
 
 <h4> Reuters </h4>
 
