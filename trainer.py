@@ -1,6 +1,7 @@
 import os
 import time
 import math
+import random
 import logging
 
 import torch
@@ -105,7 +106,7 @@ class Trainer(object):
             transforms.ToTensor()
         ])
 
-        train_idx = list(range(0, 50000))
+        train_idx = random.shuffle(list(range(0, 50000)))
         val_idx = list(range(50000, 60000))
         train_sampler = SubsetRandomSampler(train_idx)
         val_sampler = SubsetRandomSampler(val_idx)
@@ -114,7 +115,7 @@ class Trainer(object):
                                                  transform=fmnist_transforms, download=True)
         self.dataloaders["training"] = DataLoader(self.datasets["training"],
                                                   batch_size=self.batch_size,
-                                                  num_workers=self.num_workers, sampler=train_sampler)
+                                                  num_workers=self.num_workers, sampler=train_sampler, shuffle=True)
         self.dataset_sizes["training"] = len(self.datasets["training"])
 
         # set train = False, unlabeled_data = 0.0 for val set
