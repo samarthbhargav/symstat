@@ -126,6 +126,21 @@ class Hierarchy:
         self.idx_to_class = {v: k for (k, v) in self.class_to_idx.items()}
         self.n_classes = len(self.class_to_idx)
 
+        assoc_idx = {}
+        neg_assoc_idx = {}
+        all_idx = set(range(self.n_classes))
+        for clz in self.class_to_idx:
+            cls_idx = self.class_to_idx[clz]
+            assoc_idx[cls_idx] = [self.class_to_idx[c]
+                                  for c in self.find_classes(clz)]
+            neg_assoc_idx[cls_idx] = []
+            for idx in all_idx:
+                if idx not in assoc_idx[cls_idx]:
+                    neg_assoc_idx[cls_idx].append(idx)
+
+        self.assoc_idx = assoc_idx
+        self.neg_assoc_idx = neg_assoc_idx
+
     def find_classes(self, y, new_classes=None):
         if new_classes is None:
             new_classes = set()
