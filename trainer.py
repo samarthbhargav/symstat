@@ -16,7 +16,9 @@ from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_sc
 from torch import autograd
 
 from models import SemanticLossModule
-from fashion_mnsit import FashionMNIST, balanced_batches
+from fashion_mnsit import FashionMNIST
+from fashion_mnsit import Hierarchy
+from fashion_mnsit import balanced_batches, balanced_batches_heirarchy
 
 log = logging.getLogger(__name__)
 
@@ -51,7 +53,7 @@ def gather_outputs(forward_func, loader, threshold=0.5):
         for index, (x_raw, y_raw) in enumerate(loader):
 
             output = torch.sigmoid(forward_func(x_raw))
-            pred   = output.argmax(dim=1, keepdim=True)
+            pred = output.argmax(dim=1, keepdim=True)
 
             y_pred.extend(pred.cpu().view(-1).numpy())
             y_true.extend(y_raw.cpu().view(-1).numpy())
@@ -136,6 +138,9 @@ class Trainer(object):
 
         self.n_classes = self.datasets["training"].n_classes
 
+        # create class heirarchy
+        self.hierarchy = Hierarchy(self.datasets["training"])
+
     def _create_model(self, args):
         if self.model_type == "sl":
             self.model = SemanticLossModule(self.device, self.n_classes, args)
@@ -149,16 +154,17 @@ class Trainer(object):
         else:
             self.model.eval()
 
-        running_loss       = 0.0
-        running_loss_lab   = 0.0
+        running_loss = 0.0
+        running_loss_lab = 0.0
         running_loss_unlab = 0.0
-        running_n          = 0.0
+        running_n = 0.0
 
         n_batches = (self.dataset_sizes[phase] // self.batch_size) + 1
         # Iterate over data.
         # for batch_idx, (x_raw, y_raw) in enumerate(self.dataloaders[phase], 1):
         for batch_idx, (x_raw, y_raw) in enumerate(balanced_batches(self.datasets[phase], self.batch_size)):
-            x, y, x_unlab, y_unlab = FashionMNIST.separate_unlabeled(x_raw, y_raw)
+            x, y, x_unlab, y_unlab = FashionMNIST.separate_unlabeled(
+                x_raw, y_raw)
 
             if phase == "training":
                 # zero the parameter gradients
@@ -170,12 +176,14 @@ class Trainer(object):
 
                 if phase == 'training':
                     with autograd.detect_anomaly():
-                        ce, sl = self.model.compute_loss(x, y, x_unlab, y_unlab)
+                        ce, sl = self.model.compute_loss(
+                            x, y, x_unlab, y_unlab)
                         #loss = (x.size(0) * ce + x_unlab.size(0) * sl) / (x.size(0) + x_unlab.size(0))
                         loss = ce + w_s_weight * sl
                         #loss = torch.add(ce, sl)
                         loss.backward()
-                        torch.nn.utils.clip_grad_norm_(self.model.parameters(), 10)
+                        torch.nn.utils.clip_grad_norm_(
+                            self.model.parameters(), 10)
                         optimizer.step()
                 else:
                     ce, sl = self.model.compute_loss(x, y, x_unlab, y_unlab)
@@ -183,10 +191,10 @@ class Trainer(object):
                     loss = ce + w_s_weight * sl
 
             # statistics
-            running_loss       += loss.item() * (len(x) + len(x_unlab))  # TODO: change?
-            running_loss_lab   += ce.item() * (len(x) + len(x_unlab))
+            running_loss += loss.item() * (len(x) + len(x_unlab))  # TODO: change?
+            running_loss_lab += ce.item() * (len(x) + len(x_unlab))
             running_loss_unlab += float(sl) * (len(x) + len(x_unlab))
-            running_n          += (len(x) + len(x_unlab))
+            running_n += (len(x) + len(x_unlab))
 
             if batch_idx % 50 == 0:
                 log.info("\t[{}/{}] Batch {}/{}: lab Loss: {:.4f} Unlab Loss: {:.4f}".format(phase,
@@ -225,14 +233,15 @@ class Trainer(object):
         optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate)
 
         anneal_rate = 1. / num_epochs
-        w_s_weight  = 0.
+        w_s_weight = 0.
 
         since = time.time()
 
         for epoch in range(1, num_epochs + 1):
             log.info('Epoch {}/{}'.format(epoch, num_epochs))
 
-            train_loss = self.run_epoch(epoch, "training", device, optimizer, w_s_weight)
+            train_loss = self.run_epoch(
+                epoch, "training", device, optimizer, w_s_weight)
 
             if math.isnan(train_loss):
                 raise ValueError("NaN loss encountered")
