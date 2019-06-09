@@ -108,7 +108,8 @@ class Trainer(object):
             transforms.ToTensor()
         ])
 
-        train_idx = random.shuffle(list(range(0, 50000)))
+        train_idx = list(range(0, 50000))
+        random.shuffle(train_idx)
         val_idx = list(range(50000, 60000))
         train_sampler = SubsetRandomSampler(train_idx)
         val_sampler = SubsetRandomSampler(val_idx)
