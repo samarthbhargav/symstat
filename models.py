@@ -55,8 +55,6 @@ class SemanticLossModule(nn.Module):
         for idx, _ in enumerate(y):
 
             _ = _.type(torch.LongTensor)
-
-            # idx = torch.tensor(idx).type(torch.LongTensor)
             yy[idx, _] = 1.0
         return yy
 
@@ -68,10 +66,10 @@ class SemanticLossModule(nn.Module):
         if x.size(0) > 0:
             out    = self(x)
             ce_lab = self.criterion(out, self.pack_y(y))
-            sl_lab = torch.mean(self.sem_loss_hierarchy(torch.sigmoid(out), hierarchy))
+            # sl_lab = torch.mean(self.sem_loss_hierarchy(torch.sigmoid(out), hierarchy))
 
             loss   = torch.add(loss, ce_lab)
-            sl     = torch.add(sl, sl_lab)
+            # sl     = torch.add(sl, sl_lab)
 
         if x_unlab.size(0) > 0:
             out_unlab = self(x_unlab)
