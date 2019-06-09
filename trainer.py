@@ -117,7 +117,7 @@ class Trainer(object):
                                                  transform=fmnist_transforms, download=True)
         self.dataloaders["training"] = DataLoader(self.datasets["training"],
                                                   batch_size=self.batch_size,
-                                                  num_workers=self.num_workers, sampler=train_sampler, shuffle=True)
+                                                  num_workers=self.num_workers, sampler=train_sampler)
         self.dataset_sizes["training"] = len(self.datasets["training"])
 
         # set train = False, unlabeled_data = 0.0 for val set
@@ -136,10 +136,9 @@ class Trainer(object):
                                               num_workers=self.num_workers)
         self.dataset_sizes["test"] = len(self.datasets["test"])
 
-        self.n_classes = self.datasets["training"].n_classes
-
         # create class heirarchy
         self.hierarchy = Hierarchy(self.datasets["training"])
+        self.n_classes = self.hierarchy.n_classes
 
     def _create_model(self, args):
         if self.model_type == "sl":
@@ -160,9 +159,10 @@ class Trainer(object):
         running_n = 0.0
 
         n_batches = (self.dataset_sizes[phase] // self.batch_size) + 1
+
         # Iterate over data.
         # for batch_idx, (x_raw, y_raw) in enumerate(self.dataloaders[phase], 1):
-        for batch_idx, (x_raw, y_raw) in enumerate(balanced_batches(self.datasets[phase], self.batch_size)):
+        for batch_idx, (x_raw, y_raw) in enumerate(balanced_batches_heirarchy(self.datasets[phase], self.hierarchy, self.batch_size)):
             x, y, x_unlab, y_unlab = FashionMNIST.separate_unlabeled(
                 x_raw, y_raw)
 
@@ -177,9 +177,9 @@ class Trainer(object):
                 if phase == 'training':
                     with autograd.detect_anomaly():
                         ce, sl = self.model.compute_loss(
-                            x, y, x_unlab, y_unlab)
+                            x, y, x_unlab, y_unlab, self.hierarchy)
                         #loss = (x.size(0) * ce + x_unlab.size(0) * sl) / (x.size(0) + x_unlab.size(0))
-                        loss = ce + w_s_weight * sl
+                        loss = w_s_weight * ce + sl
                         #loss = torch.add(ce, sl)
                         loss.backward()
                         torch.nn.utils.clip_grad_norm_(
