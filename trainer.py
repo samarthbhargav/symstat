@@ -1,4 +1,5 @@
 import os
+import copy
 import time
 import math
 import random
@@ -206,7 +207,7 @@ class Trainer(object):
                             self.model.parameters(), 10)
                         optimizer.step()
                 else:
-                    ce, sl = self.model.compute_loss(x, y, x_unlab, y_unlab)
+                    ce, sl = self.model.compute_loss(x, y, x_unlab, y_unlab, self.hierarchy)
                     loss = ce + w_s_weight * sl
 
             # statistics
@@ -214,7 +215,7 @@ class Trainer(object):
             running_loss_lab += ce.item() * (len(x) + len(x_unlab))
             running_loss_unlab += float(sl) * (len(x) + len(x_unlab))
             running_n += (len(x) + len(x_unlab))
-
+            
             if batch_idx % 50 == 0:
                 log.info("\t[{}/{}] Batch {}/{}: lab Loss: {:.4f} Unlab Loss: {:.4f}".format(phase,
                                                                                              epoch,
