@@ -66,11 +66,33 @@ def gather_outputs(forward_func, loader, threshold=0.5):
     return y_true, y_pred
 
 
+def gather_outputs2(forward_func, loader, threshold=0.5):
+    y_true = []
+    y_pred = []
+    raw_out = []
+    log.info("Gathering outputs")
+    with torch.no_grad():
+        for index, (x_raw, y_raw) in enumerate(loader):
+            raw = forward_func(x_raw)
+            output = torch.sigmoid(raw)
+            pred = output.argmax(dim=1, keepdim=True)
+
+            y_pred.extend(pred.cpu().view(-1).numpy())
+            y_true.extend(y_raw.cpu().view(-1).numpy())
+            raw_out.extend(output.cpu().numpy())
+
+            if (index + 1) % 1000 == 0:
+                log.info("Eval loop: {} done".format(index + 1))
+
+    y_true, y_pred = np.array(y_true), np.array(y_pred)
+    return y_true, y_pred, np.array(raw_out)
+
+
 def sat_exactly2_parts(logits, hierarchy):
 
     assert logits.size(1) == hierarchy.n_classes
 
-    sat   = 0
+    sat = 0
     total = 0
 
     for l in logits:
@@ -175,6 +197,14 @@ class Trainer(object):
         else:
             self.model.eval()
 
+        # _, _, raw_out = gather_outputs2(
+        #     self.model.forward, self.dataloaders[phase])
+        # raw_out[raw_out > 0.5] = 1
+        # raw_out[raw_out <= 0.5] = 0
+
+        # sat_exactly2_parts(torch.FloatTensor(raw_out), self.hierarchy)
+
+
         running_loss = 0.0
         running_loss_lab = 0.0
         running_loss_unlab = 0.0
@@ -207,7 +237,8 @@ class Trainer(object):
                             self.model.parameters(), 10)
                         optimizer.step()
                 else:
-                    ce, sl = self.model.compute_loss(x, y, x_unlab, y_unlab, self.hierarchy)
+                    ce, sl = self.model.compute_loss(
+                        x, y, x_unlab, y_unlab, self.hierarchy)
                     loss = ce + w_s_weight * sl
 
             # statistics
@@ -215,7 +246,7 @@ class Trainer(object):
             running_loss_lab += ce.item() * (len(x) + len(x_unlab))
             running_loss_unlab += float(sl) * (len(x) + len(x_unlab))
             running_n += (len(x) + len(x_unlab))
-            
+
             if batch_idx % 50 == 0:
                 log.info("\t[{}/{}] Batch {}/{}: lab Loss: {:.4f} Unlab Loss: {:.4f}".format(phase,
                                                                                              epoch,
