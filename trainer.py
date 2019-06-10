@@ -99,7 +99,7 @@ def sat_exactly2_parts(logits, hierarchy):
         ids_pred = sorted(np.where(l == 1.)[0])
 
         for k, v in hierarchy.assoc_idx.items():
-            if np.array_equal(sorted(v), sorted(ids_pred_s)):
+            if np.array_equal(sorted(v), ids_pred):
                 sat += 1
                 break
         total += 1
@@ -197,14 +197,6 @@ class Trainer(object):
         else:
             self.model.eval()
 
-        # _, _, raw_out = gather_outputs2(
-        #     self.model.forward, self.dataloaders[phase])
-        # raw_out[raw_out > 0.5] = 1
-        # raw_out[raw_out <= 0.5] = 0
-
-        # sat_exactly2_parts(torch.FloatTensor(raw_out), self.hierarchy)
-
-
         running_loss = 0.0
         running_loss_lab = 0.0
         running_loss_unlab = 0.0
@@ -266,11 +258,12 @@ class Trainer(object):
         }
 
         if phase == 'val':
-            logits = copy.deepcopy(y_pred)
-            logits[logits > 0.5] = 1
-            logits[logits <= 0.5] = 0
+            _, _, raw_out = gather_outputs2(
+                self.model.forward, self.dataloaders[phase])
+            raw_out[raw_out > 0.5] = 1
+            raw_out[raw_out <= 0.5] = 0
 
-            sat, total = sat_exactly2_parts(logits, self.hierarchy)
+            sat, total = sat_exactly2_parts(torch.FloatTensor(raw_out), self.hierarchy)
 
             log.info("{} Num points satisfied: {} / {}".format(phase, sat, total))
 
