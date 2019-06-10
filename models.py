@@ -103,32 +103,56 @@ class SemanticLossModule(nn.Module):
         s_batch = torch.zeros(p_probs.size(0))
 
         for j, probs in enumerate(p_probs):
-            s_1 = torch.zeros(1)
-            s_2 = torch.zeros(1)
+
+            # print(probs.size())
+
+            # s_1 = torch.zeros(1)
+            # s_2 = torch.zeros(1)
+            s = torch.zeros(1)
+
+            # print("---")
+            # print(probs)
 
             for i, p_i in enumerate(probs):
                 # get 'positive' locs - we want to maximize these probs
                 assoc = hierarchy.assoc_idx[i]
-                # get 'negative' locs - we want to minimuize these probs
+                # get 'negative' locs - we want to minimize these probs
                 neg_assoc = hierarchy.neg_assoc_idx[i]
 
-                # _s_1 = probs[assoc].prod()
-                # _s_2 = (1 - probs[neg_assoc]).prod()
-
                 _s_1 = torch.sum(torch.log(probs[assoc] + 1e-9))
-                _s_1 = torch.clamp(_s_1, max=5)
+                # _s_1 = torch.clamp(_s_1, max=5)
                 _s_2 = torch.sum(torch.log(1 - probs[neg_assoc] + 1e-9))
-                _s_2 = torch.clamp(_s_2, max=5)
+                # _s_2 = torch.clamp(_s_2, max=5)
 
-                s_1 = torch.add(s_1, torch.exp(_s_1))
-                s_2 = torch.add(s_2, torch.exp(_s_2))
+                # print("---")
+                # print(_s_1)
+                # print(_s_2)
 
-                s_1 = torch.clamp(s_1, max=1)
-                s_2 = torch.clamp(s_2, max=1)
+                s = torch.add(s, torch.exp(_s_1 + _s_2))
 
-                # s_1 = s_1 + _s_1
-                # s_2 = s_2 + _s_2
+                # print(s)
 
-            s_batch[j] = - torch.log(s_1) - torch.log(s_2)
+                # s_1 = torch.add(s_1, torch.exp(_s_1))
+                # s_2 = torch.add(s_2, torch.exp(_s_2))
 
-        return s_batch.mean()
+                # print("---")
+                # print(s_1)
+                # print(s_2)
+
+            # s_batch[j] = - torch.log(s_1) - torch.log(s_2)
+
+            # print("---")
+            # print(-torch.log(s_1 + 1e-9))
+            # print(-torch.log(s_2 + 1e-9))
+
+            # s_batch[j] = torch.add(-torch.log(s_1 + 1e-9), torch.log(s_2 + 1e-9))
+            s_batch[j] = -1 * torch.log(s)
+
+            # print(s)
+
+            # s_batch[j] = torch.min(-torch.log(s_1 + 1e-9), -torch.log(s_2 + 1e-9))
+
+        sl = s_batch.mean()
+        sl = torch.clamp(sl, min=0., max=5.)  # Magic numbers
+
+        return sl

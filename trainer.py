@@ -65,6 +65,25 @@ def gather_outputs(forward_func, loader, threshold=0.5):
     return y_true, y_pred
 
 
+def sat_exactly2_parts(logits, hierarchy):
+
+    assert logits.size(1) == hierarchy.n_classes
+
+    sat   = 0
+    total = 0
+
+    for l in logits:
+        ids_pred = sorted(np.where(l == 1.)[0])
+
+        for k, v in hierarchy.assoc_idx.items():
+            if np.array_equal(sorted(v), sorted(ids_pred_s)):
+                sat += 1
+                break
+        total += 1
+
+    return sat, total
+
+
 def mkdir(path):
     if os.path.exists(path):
         return
@@ -89,7 +108,7 @@ class Trainer(object):
         self.dataset_sizes = {}
         self.datasets = {}
         self.dataloaders = {}
-        self.hierarchy = {}
+
         self._load_data(args)
 
         log.info("Device: {}".format(self.device))
@@ -139,9 +158,8 @@ class Trainer(object):
         self.dataset_sizes["test"] = len(self.datasets["test"])
 
         # create class heirarchy
-        self.hierarchy["training"] = Hierarchy(self.datasets["training"])
-        self.hierarchy["val"] = Hierarchy(self.datasets["val"])
-        self.n_classes = self.hierarchy["training"].n_classes
+        self.hierarchy = Hierarchy(self.datasets["training"])
+        self.n_classes = self.hierarchy.n_classes
 
     def _create_model(self, args):
         if self.model_type == "sl":
@@ -165,7 +183,7 @@ class Trainer(object):
 
         # Iterate over data.
         # for batch_idx, (x_raw, y_raw) in enumerate(self.dataloaders[phase], 1):
-        for batch_idx, (x_raw, y_raw) in enumerate(balanced_batches_heirarchy(self.datasets[phase], self.hierarchy[phase], self.batch_size)):
+        for batch_idx, (x_raw, y_raw) in enumerate(balanced_batches_heirarchy(self.datasets[phase], self.hierarchy, self.batch_size)):
             x, y, x_unlab, y_unlab = FashionMNIST.separate_unlabeled(
                 x_raw, y_raw)
 
@@ -180,17 +198,15 @@ class Trainer(object):
                 if phase == 'training':
                     with autograd.detect_anomaly():
                         ce, sl = self.model.compute_loss(
-                            x, y, x_unlab, y_unlab, self.hierarchy[phase])
-                        #loss = (x.size(0) * ce + x_unlab.size(0) * sl) / (x.size(0) + x_unlab.size(0))
-                        loss = w_s_weight * ce + sl
-                        #loss = torch.add(ce, sl)
+                            x, y, x_unlab, y_unlab, self.hierarchy)
+                        loss = ce + w_s_weight * sl
+
                         loss.backward()
                         torch.nn.utils.clip_grad_norm_(
                             self.model.parameters(), 10)
                         optimizer.step()
                 else:
                     ce, sl = self.model.compute_loss(x, y, x_unlab, y_unlab)
-                    #loss = (x.size(0) * ce + x_unlab.size(0) * sl) / (x.size(0) + x_unlab.size(0))
                     loss = ce + w_s_weight * sl
 
             # statistics
@@ -216,6 +232,15 @@ class Trainer(object):
         scores = {
             "accuracy": Multilabel.accuracy_score(y_true, y_pred)
         }
+
+        if phase == 'val':
+            logits = copy.deepcopy(y_pred)
+            logits[logits > 0.5] = 1
+            logits[logits <= 0.5] = 0
+
+            sat, total = sat_exactly2_parts(logits, self.hierarchy)
+
+            log.info("{} Num points satisfied: {} / {}".format(phase, sat, total))
 
         log.info("{} Scores: {}".format(phase, scores))
 
