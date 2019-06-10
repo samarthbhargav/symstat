@@ -89,6 +89,7 @@ class Trainer(object):
         self.dataset_sizes = {}
         self.datasets = {}
         self.dataloaders = {}
+        self.hierarchy = {}
         self._load_data(args)
 
         log.info("Device: {}".format(self.device))
@@ -108,7 +109,8 @@ class Trainer(object):
             transforms.ToTensor()
         ])
 
-        train_idx = random.shuffle(list(range(0, 50000)))
+        train_idx = list(range(0, 50000))
+        random.shuffle(train_idx)
         val_idx = list(range(50000, 60000))
         train_sampler = SubsetRandomSampler(train_idx)
         val_sampler = SubsetRandomSampler(val_idx)
@@ -136,10 +138,10 @@ class Trainer(object):
                                               num_workers=self.num_workers)
         self.dataset_sizes["test"] = len(self.datasets["test"])
 
-        self.n_classes = self.datasets["training"].n_classes
-
         # create class heirarchy
-        self.hierarchy = Hierarchy(self.datasets["training"])
+        self.hierarchy["training"] = Hierarchy(self.datasets["training"])
+        self.hierarchy["val"] = Hierarchy(self.datasets["val"])
+        self.n_classes = self.hierarchy["training"].n_classes
 
     def _create_model(self, args):
         if self.model_type == "sl":
@@ -160,9 +162,10 @@ class Trainer(object):
         running_n = 0.0
 
         n_batches = (self.dataset_sizes[phase] // self.batch_size) + 1
+
         # Iterate over data.
         # for batch_idx, (x_raw, y_raw) in enumerate(self.dataloaders[phase], 1):
-        for batch_idx, (x_raw, y_raw) in enumerate(balanced_batches(self.datasets[phase], self.batch_size)):
+        for batch_idx, (x_raw, y_raw) in enumerate(balanced_batches_heirarchy(self.datasets[phase], self.hierarchy[phase], self.batch_size)):
             x, y, x_unlab, y_unlab = FashionMNIST.separate_unlabeled(
                 x_raw, y_raw)
 
@@ -177,9 +180,9 @@ class Trainer(object):
                 if phase == 'training':
                     with autograd.detect_anomaly():
                         ce, sl = self.model.compute_loss(
-                            x, y, x_unlab, y_unlab)
+                            x, y, x_unlab, y_unlab, self.hierarchy[phase])
                         #loss = (x.size(0) * ce + x_unlab.size(0) * sl) / (x.size(0) + x_unlab.size(0))
-                        loss = ce + w_s_weight * sl
+                        loss = w_s_weight * ce + sl
                         #loss = torch.add(ce, sl)
                         loss.backward()
                         torch.nn.utils.clip_grad_norm_(
