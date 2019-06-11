@@ -5,7 +5,7 @@
    "w": 0
   },
   "results": {
-   "accuracy": 0.985
+   "accuracy": 0.63
   }
  },
  {
@@ -14,7 +14,7 @@
    "w": 0
   },
   "results": {
-   "accuracy": 0.995
+   "accuracy": 0.31
   }
  },
  {
@@ -23,7 +23,7 @@
    "w": 0
   },
   "results": {
-   "accuracy": 0.97
+   "accuracy": 0.405
   }
  },
  {
@@ -32,7 +32,7 @@
    "w": 0
   },
   "results": {
-   "accuracy": 0.93
+   "accuracy": 0.24
   }
  },
  {
@@ -41,7 +41,7 @@
    "w": 0
   },
   "results": {
-   "accuracy": 0.975
+   "accuracy": 0.575
   }
  },
  {
@@ -50,7 +50,7 @@
    "w": 0.001
   },
   "results": {
-   "accuracy": 0.965
+   "accuracy": 0.275
   }
  },
  {
@@ -59,7 +59,7 @@
    "w": 0.001
   },
   "results": {
-   "accuracy": 0.94
+   "accuracy": 0.855
   }
  },
  {
@@ -68,7 +68,7 @@
    "w": 0.001
   },
   "results": {
-   "accuracy": 0.975
+   "accuracy": 0.37
   }
  },
  {
@@ -77,151 +77,151 @@
    "w": 0.001
   },
   "results": {
-   "accuracy": 0.87
+   "accuracy": 0.005
   }
  },
  {
   "params": {
    "percent_data": 0.9,
    "w": 0.001
-  },
-  "results": {
-   "accuracy": 0.98
-  }
- },
- {
-  "params": {
-   "percent_data": 0.1,
-   "w": 0.01
-  },
-  "results": {
-   "accuracy": 0.97
-  }
- },
- {
-  "params": {
-   "percent_data": 0.25,
-   "w": 0.01
-  },
-  "results": {
-   "accuracy": 0.985
-  }
- },
- {
-  "params": {
-   "percent_data": 0.5,
-   "w": 0.01
-  },
-  "results": {
-   "accuracy": 0.975
-  }
- },
- {
-  "params": {
-   "percent_data": 0.75,
-   "w": 0.01
-  },
-  "results": {
-   "accuracy": 0.98
-  }
- },
- {
-  "params": {
-   "percent_data": 0.9,
-   "w": 0.01
-  },
-  "results": {
-   "accuracy": 0.985
-  }
- },
- {
-  "params": {
-   "percent_data": 0.1,
-   "w": 0.1
-  },
-  "results": {
-   "accuracy": 0.98
-  }
- },
- {
-  "params": {
-   "percent_data": 0.25,
-   "w": 0.1
-  },
-  "results": {
-   "accuracy": 0.965
-  }
- },
- {
-  "params": {
-   "percent_data": 0.5,
-   "w": 0.1
-  },
-  "results": {
-   "accuracy": 0.885
-  }
- },
- {
-  "params": {
-   "percent_data": 0.75,
-   "w": 0.1
-  },
-  "results": {
-   "accuracy": 0.96
-  }
- },
- {
-  "params": {
-   "percent_data": 0.9,
-   "w": 0.1
-  },
-  "results": {
-   "accuracy": 0.975
-  }
- },
- {
-  "params": {
-   "percent_data": 0.1,
-   "w": 1
-  },
-  "results": {
-   "accuracy": 0.595
-  }
- },
- {
-  "params": {
-   "percent_data": 0.25,
-   "w": 1
-  },
-  "results": {
-   "accuracy": 0.62
-  }
- },
- {
-  "params": {
-   "percent_data": 0.5,
-   "w": 1
-  },
-  "results": {
-   "accuracy": 0.8
-  }
- },
- {
-  "params": {
-   "percent_data": 0.75,
-   "w": 1
-  },
-  "results": {
-   "accuracy": 0.66
-  }
- },
- {
-  "params": {
-   "percent_data": 0.9,
-   "w": 1
   },
   "results": {
    "accuracy": 0.73
+  }
+ },
+ {
+  "params": {
+   "percent_data": 0.1,
+   "w": 0.01
+  },
+  "results": {
+   "accuracy": 0.465
+  }
+ },
+ {
+  "params": {
+   "percent_data": 0.25,
+   "w": 0.01
+  },
+  "results": {
+   "accuracy": 0.365
+  }
+ },
+ {
+  "params": {
+   "percent_data": 0.5,
+   "w": 0.01
+  },
+  "results": {
+   "accuracy": 0.42
+  }
+ },
+ {
+  "params": {
+   "percent_data": 0.75,
+   "w": 0.01
+  },
+  "results": {
+   "accuracy": 0.04
+  }
+ },
+ {
+  "params": {
+   "percent_data": 0.9,
+   "w": 0.01
+  },
+  "results": {
+   "accuracy": 0.585
+  }
+ },
+ {
+  "params": {
+   "percent_data": 0.1,
+   "w": 0.1
+  },
+  "results": {
+   "accuracy": 0.635
+  }
+ },
+ {
+  "params": {
+   "percent_data": 0.25,
+   "w": 0.1
+  },
+  "results": {
+   "accuracy": 0.375
+  }
+ },
+ {
+  "params": {
+   "percent_data": 0.5,
+   "w": 0.1
+  },
+  "results": {
+   "accuracy": 0.635
+  }
+ },
+ {
+  "params": {
+   "percent_data": 0.75,
+   "w": 0.1
+  },
+  "results": {
+   "accuracy": 0.385
+  }
+ },
+ {
+  "params": {
+   "percent_data": 0.9,
+   "w": 0.1
+  },
+  "results": {
+   "accuracy": 0.7
+  }
+ },
+ {
+  "params": {
+   "percent_data": 0.1,
+   "w": 1
+  },
+  "results": {
+   "accuracy": 0.47
+  }
+ },
+ {
+  "params": {
+   "percent_data": 0.25,
+   "w": 1
+  },
+  "results": {
+   "accuracy": 0.375
+  }
+ },
+ {
+  "params": {
+   "percent_data": 0.5,
+   "w": 1
+  },
+  "results": {
+   "accuracy": 0.26
+  }
+ },
+ {
+  "params": {
+   "percent_data": 0.75,
+   "w": 1
+  },
+  "results": {
+   "accuracy": 0.495
+  }
+ },
+ {
+  "params": {
+   "percent_data": 0.9,
+   "w": 1
+  },
+  "results": {
+   "accuracy": 0.26
   }
  },
  {
@@ -239,7 +239,7 @@
    "w": 10
   },
   "results": {
-   "accuracy": 0.29
+   "accuracy": 0.655
   }
  },
  {
@@ -248,7 +248,7 @@
    "w": 10
   },
   "results": {
-   "accuracy": 0.26
+   "accuracy": 0.615
   }
  },
  {
@@ -257,7 +257,7 @@
    "w": 10
   },
   "results": {
-   "accuracy": 0.26
+   "accuracy": 0.375
   }
  },
  {
